@@ -1,0 +1,59 @@
+
+// the setup function runs once when you press reset or power the board
+void setup(){
+  DDRB = DDRB | B10000000; // Data Direction Register B: Inputs 0-6, Output 7
+  }
+void loop(){
+  asm (
+    "inicio:\n\t"
+    "in r17,0x03\n\t"
+    "LDI r18,0\n\t"
+    "cp r17,r18\n\t"
+    "brne pushBut\n\t" //salta a la secuencia del delay porque se activó el PushButton
+    "jmp norm\n\t" //salta a la secuencia de delay normal
+    
+    "pushBut:\n\t"
+    "sbi 0x05,0x07\n\t"
+    "call tiempo_2\n\t" //El tiempo 2 tarda lo doble ya que tiene una frecuencia de 0.5 Hz
+    "cbi 0x05,0x07\n\t"
+    "call tiempo_2\n\t"
+    "jmp main\n\t"
+
+    "norm:\n\t"
+    "sbi 0x05,0x07\n\t"
+    "call tiempo_1\n\t" //El tiempo 1 tarda 1 sec porque tiene una frecuencia de 1 hz
+    "cbi 0x05,0x07\n\t"
+    "call tiempo_1\n\t" 
+    "jmp main\n\t"
+    
+    "tiempo_1:\n\t" //Con esta configuración, el parpadeo se hace cada segundo
+    "LDI r22, 124\n\t"
+    "LOOP_3:\n\t"
+    "LDI r21, 255\n\t"
+    "LOOP_2:\n\t"
+    "LDI r20, 255\n\t"
+    "LOOP_1:\n\t"
+    "DEC r20\n\t"
+    "BRNE LOOP_1\n\t"
+    "DEC r21\n\t"
+    "BRNE LOOP_2\n\t"
+    "DEC r22\n\t"
+    "BRNE LOOP_3\n\t"
+    "ret\n\t"
+
+    "tiempo_2:\n\t" //Con esta configuración el parpadeo se hace cada 2 segundos
+    "LDI r25, 247\n\t"
+    "LOOP_6:\n\t"
+    "LDI r24, 255\n\t"
+    "LOOP_5:\n\t"
+    "LDI r23, 255\n\t"
+    "LOOP_4:\n\t"
+    "DEC r23\n\t"
+    "BRNE LOOP_4\n\t"
+    "DEC r24\n\t"
+    "BRNE LOOP_5\n\t"
+    "DEC r25\n\t"
+    "BRNE LOOP_6\n\t"
+    "ret\n\t"
+  );
+}
